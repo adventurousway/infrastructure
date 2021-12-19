@@ -23,3 +23,8 @@
   hosts: all
   tags: commento
   roles: [app_commento]
+
+- name: Configure Ghost
+  hosts: all
+  tags: ghost
+  roles: [app_ghost]

@@ -1,0 +1,43 @@
+{
+  "url": "https://www.{{ domain }}/blog",
+  "admin": {
+    "url": "https://www.{{ domain }}"
+  },
+  "server": {
+    "port": 2368,
+    "host": "0.0.0.0"
+  },
+  "database": {
+    "client": "mysql",
+    "connection": {
+      "host": "mysql",
+      "port": 3306,
+      "user": "{{ ghost_database_user }}",
+      "database": "{{ ghost_database_name }}"
+    }
+  },
+  "mail": {
+    "transport": "SMTP",
+    "options": {
+      "host": "{{ ghost_smtp_host }}",
+      "auth": {
+        "user": "{{ ghost_smtp_user }}",
+        "pass": "{{ ghost_smtp_pass }}"
+      }
+    },
+    "from": "{{ ghost_smtp_from_address }}"
+  },
+  "logging": {
+    "transports": ["stdout"]
+  },
+  "storage": {
+    "active": "s3",
+    "s3": {
+      "assetHost": "{{ ghost_storage_adapter_s3_asset_host }} "
+    }
+  },
+  "process": "systemd",
+  "paths": {
+    "contentPath": "/var/lib/ghost/current/content"
+  }
+}

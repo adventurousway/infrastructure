@@ -32,3 +32,6 @@ website:
 
 commento:
 	@ansible-playbook playbooks/app.yml -t commento
+
+ghost:
+	@ansible-playbook playbooks/app.yml -t ghost

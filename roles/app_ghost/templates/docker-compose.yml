@@ -1,0 +1,37 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  proxy:
+    external: true
+  data:
+    external: true
+
+services:
+  ghost:
+    build:
+      context: "{{ data_path }}/ghost"
+    restart: unless-stopped
+    container_name: ghost
+    environment:
+      database__connection__password: "{{ ghost_database_password }}"
+      AWS_ACCESS_KEY_ID: "{{ ghost_aws_access_key_id }}"
+      AWS_DEFAULT_REGION: "{{ ghost_aws_default_region }}"
+      AWS_SECRET_ACCESS_KEY: "{{ ghost_aws_secret_access_key }}"
+      GHOST_STORAGE_ADAPTER_S3_ENDPOINT: "{{ ghost_storage_adapter_s3_endpoint }}"
+      GHOST_STORAGE_ADAPTER_S3_PATH_BUCKET: "{{ ghost_storage_adapter_s3_path_bucket }}"
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: proxy
+      traefik.http.routers.ghost.rule: "Host(`www.{{ domain }}`) && PathPrefix(`/blog/ghost`)"
+      traefik.http.routers.ghost.entrypoints: "https"
+      traefik.http.routers.ghost.service: "ghost"
+      traefik.http.routers.ghost.tls: "true"
+      traefik.http.routers.ghost.tls.certresolver: "adventurousway-cloudflare"
+      traefik.http.services.ghost.loadbalancer.server.port: "2368"
+    volumes:
+      - "{{ data_path }}/config/ghost.json:/var/lib/ghost/config.production.json:ro"
+    networks:
+      - proxy
+      - data
