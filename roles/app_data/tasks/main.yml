@@ -13,14 +13,11 @@
     - postgres
     - config
 
-- name: Copy configuration files
+- name: Copy MySQL configuration file
   template:
-    src: "{{ item }}"
-    dest: "{{ data_path }}/config/{{ item }}"
+    src: mysql.conf
+    dest: "{{ data_path }}/config/mysql.conf"
     mode: "0644"
-  with_items:
-    - mysql.conf
-    - docker-compose.yml
 
 - name: Copy Docker Compose definition file
   template:
