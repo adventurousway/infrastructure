@@ -15,3 +15,9 @@ base:
 
 app:
 	@ansible-playbook playbooks/app.yml
+
+data:
+	@ansible-playbook playbooks/app.yml -t data
+
+proxy:
+	@ansible-playbook playbooks/app.yml -t proxy

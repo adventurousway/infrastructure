@@ -3,3 +3,8 @@
   hosts: all
   tags: data
   roles: [app_data]
+
+- name: Configure the reverse proxy
+  hosts: all
+  tags: proxy
+  roles: [app_proxy]

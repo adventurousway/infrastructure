@@ -1,0 +1,45 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  default:
+  proxy:
+    external: true
+
+services:
+  traefik:
+    image: traefik:v2.5
+    restart: unless-stopped
+    command:
+      - "--accesslog=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedByDefault=false"
+      - "--entrypoints.http.address=:80"
+      - "--entryPoints.http.forwardedHeaders.insecure=true"
+      - "--entrypoints.https.address=:443"
+      - "--certificatesresolvers.adventurousway-cloudflare.acme.dnschallenge=true"
+      - "--certificatesresolvers.adventurousway-cloudflare.acme.dnschallenge.provider=cloudflare"
+      - "--certificatesresolvers.adventurousway-cloudflare.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      # - "--certificatesresolvers.adventurousway-cloudflare.acme.caserver=https://acme-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.adventurousway-cloudflare.acme.email={{ letsencrypt_email_address }}"
+      - "--certificatesresolvers.adventurousway-cloudflare.acme.storage=/letsencrypt/acme.json"
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: "proxy"
+      traefik.http.middlewares.cors.headers.accesscontrolalloworigin: "*"
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
+      traefik.http.middlewares.redirect-to-https.redirectscheme.permanent: "true"
+      traefik.http.middlewares.append-trailing-slash.redirectregex.regex: "^(https?://[^/]+/[a-z0-9_]+)$$"
+      traefik.http.middlewares.append-trailing-slash.redirectregex.replacement: "$${1}/"
+      traefik.http.middlewares.append-trailing-slash.redirectregex.permanent: "true"
+    environment:
+      CF_API_EMAIL: "{{ cloudflare_email_address }}"
+      CF_API_KEY: "{{ cloudflare_api_key }}"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "{{ data_path }}/traefik:/letsencrypt"
+    dns: 1.1.1.1
+    networks:
+      - default
+      - proxy
