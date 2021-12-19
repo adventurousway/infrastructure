@@ -40,6 +40,13 @@
       ansible.builtin.hostname:
         name: "{{ inventory_hostname }}"
 
+    - name: Add hostname to /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        search_string: "127.0.0.1 {{ inventory_hostname }}"
+        line: "127.0.0.1 {{ inventory_hostname }}"
+        insertafter: "^127.0.0.1"
+
     - name: Check if a reboot is needed
       stat:
         path: /var/run/reboot-required
