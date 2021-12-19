@@ -35,3 +35,6 @@ commento:
 
 ghost:
 	@ansible-playbook playbooks/app.yml -t ghost
+
+matomo:
+	@ansible-playbook playbooks/app.yml -t matomo

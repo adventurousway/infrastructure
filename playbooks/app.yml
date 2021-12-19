@@ -28,3 +28,8 @@
   hosts: all
   tags: ghost
   roles: [app_ghost]
+
+- name: Configure Matomo
+  hosts: all
+  tags: matomo
+  roles: [app_matomo]
