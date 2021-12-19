@@ -8,3 +8,8 @@
   hosts: all
   tags: proxy
   roles: [app_proxy]
+
+- name: Configure the Docker registry
+  hosts: all
+  tags: registry
+  roles: [app_docker_registry]

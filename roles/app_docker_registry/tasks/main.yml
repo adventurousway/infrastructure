@@ -1,0 +1,37 @@
+---
+- name: Create storage directories
+  become: yes
+  file:
+    path: "{{ data_path }}/{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ remote_user }}"
+    group: "{{ remote_user }}"
+  with_items:
+    - config
+
+- name: Copy configuration file
+  template:
+    src: registry.yml
+    dest: "{{ data_path }}/config/registry.yml"
+    mode: "0644"
+
+- name: Create htpasswd file
+  copy:
+    dest: "{{ data_path }}/config/htpasswd"
+    content: "{{ htpasswd }}"
+    mode: "0644"
+  vars:
+    htpasswd: "{{ registry_users.keys() | list | zip(registry_users.values() | list) | map('join', ':') | join('\n') }}"
+
+- name: Copy Docker Compose definition file
+  template:
+    src: docker-compose.yml
+    dest: "{{ data_path }}/docker-compose.yml"
+    mode: "0644"
+
+- name: Start the stack with Docker Compose
+  community.docker.docker_compose:
+    project_src: "{{ data_path }}"
+    pull: true
+    remove_orphans: true

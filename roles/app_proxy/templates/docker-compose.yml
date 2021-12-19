@@ -3,7 +3,6 @@
 version: "2.4"
 
 networks:
-  default:
   proxy:
     external: true
 
@@ -17,6 +16,8 @@ services:
       - "--providers.docker.exposedByDefault=false"
       - "--entrypoints.http.address=:80"
       - "--entryPoints.http.forwardedHeaders.insecure=true"
+      - "--entrypoints.http.http.redirections.entrypoint.to=https"
+      - "--entrypoints.http.http.redirections.entrypoint.scheme=https"
       - "--entrypoints.https.address=:443"
       - "--certificatesresolvers.adventurousway-cloudflare.acme.dnschallenge=true"
       - "--certificatesresolvers.adventurousway-cloudflare.acme.dnschallenge.provider=cloudflare"
@@ -25,11 +26,8 @@ services:
       - "--certificatesresolvers.adventurousway-cloudflare.acme.email={{ letsencrypt_email_address }}"
       - "--certificatesresolvers.adventurousway-cloudflare.acme.storage=/letsencrypt/acme.json"
     labels:
-      traefik.enable: "true"
       traefik.docker.network: "proxy"
       traefik.http.middlewares.cors.headers.accesscontrolalloworigin: "*"
-      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
-      traefik.http.middlewares.redirect-to-https.redirectscheme.permanent: "true"
       traefik.http.middlewares.append-trailing-slash.redirectregex.regex: "^(https?://[^/]+/[a-z0-9_]+)$$"
       traefik.http.middlewares.append-trailing-slash.redirectregex.replacement: "$${1}/"
       traefik.http.middlewares.append-trailing-slash.redirectregex.permanent: "true"
@@ -39,7 +37,9 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "{{ data_path }}/traefik:/letsencrypt"
+    ports:
+      - "80:80/tcp"
+      - "443:443/tcp"
     dns: 1.1.1.1
     networks:
-      - default
       - proxy

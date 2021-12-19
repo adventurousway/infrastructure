@@ -3,7 +3,6 @@
 version: "2.4"
 
 networks:
-  default:
   data:
     external: true
 
@@ -14,7 +13,6 @@ services:
     volumes:
       - "{{ data_path }}/mongo:/data"
     networks:
-      - default
       - data
 
   mysql:
@@ -26,7 +24,6 @@ services:
       - "{{ data_path }}/mysql:/var/lib/mysql"
       - "{{ data_path }}/config/mysql.conf:/etc/mysql/conf.d/my.cnf"
     networks:
-      - default
       - data
 
   postgres:
@@ -36,7 +33,6 @@ services:
     volumes:
       - "{{ data_path }}/postgres:/var/lib/postgresql/data"
     networks:
-      - default
       - data
 
   redis:
@@ -44,5 +40,4 @@ services:
     restart: unless-stopped
     mem_limit: 512M
     networks:
-      - default
       - data

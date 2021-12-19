@@ -1,0 +1,28 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  proxy:
+    external: true
+  data:
+    external: true
+
+services:
+  registry:
+    image: registry:2
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.registry.rule: "Host(`registry.{{ domain }}`)"
+      traefik.http.routers.registry.entrypoints: "https"
+      traefik.http.routers.registry.tls: "true"
+      traefik.http.routers.registry.tls.certresolver: "adventurousway-cloudflare"
+      traefik.http.routers.registry.service: "registry"
+      traefik.http.services.registry.loadbalancer.server.port: "5000"
+    volumes:
+      - "{{ data_path }}/config/registry.yml:/etc/docker/registry/config.yml"
+      - "{{ data_path }}/config/htpasswd:/etc/docker/registry/htpasswd"
+    networks:
+      - proxy
+      - data

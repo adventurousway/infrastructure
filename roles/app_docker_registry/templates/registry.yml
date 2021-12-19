@@ -1,0 +1,31 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: 0.1
+log:
+  fields:
+    service: registry
+storage:
+  cache:
+    blobdescriptor: redis
+  s3:
+    accesskey: "{{ registry_storage_s3_accesskey }}"
+    secretkey: "{{ registry_storage_s3_secretkey }}"
+    region: "{{ registry_storage_s3_region }}"
+    regionendpoint: "{{ registry_storage_s3_regionendpoint }}"
+    bucket: "{{ registry_storage_s3_bucket }}"
+redis:
+  addr: redis:6379
+http:
+  addr: :5000
+  secret: "{{ registry_http_secret }}"
+  headers:
+    X-Content-Type-Options: [nosniff]
+auth:
+  htpasswd:
+    realm: basic-realm
+    path: /etc/docker/registry/htpasswd
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3
