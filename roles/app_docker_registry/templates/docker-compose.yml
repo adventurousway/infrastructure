@@ -12,8 +12,10 @@ services:
   registry:
     image: registry:2
     restart: unless-stopped
+    container_name: registry
     labels:
       traefik.enable: "true"
+      traefik.docker.network: proxy
       traefik.http.routers.registry.rule: "Host(`registry.{{ domain }}`)"
       traefik.http.routers.registry.entrypoints: "https"
       traefik.http.routers.registry.tls: "true"

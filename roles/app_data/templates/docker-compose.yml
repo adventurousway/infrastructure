@@ -10,6 +10,7 @@ services:
   mongo:
     image: mongo:latest
     restart: unless-stopped
+    container_name: mongo
     volumes:
       - "{{ data_path }}/mongo:/data"
     networks:
@@ -18,6 +19,7 @@ services:
   mysql:
     image: mariadb:latest
     restart: unless-stopped
+    container_name: mysql
     mem_reservation: 512M
     mem_limit: 1G
     volumes:
@@ -29,6 +31,7 @@ services:
   postgres:
     image: postgres:12.2
     restart: unless-stopped
+    container_name: postgres
     mem_limit: 512M
     volumes:
       - "{{ data_path }}/postgres:/var/lib/postgresql/data"
@@ -38,6 +41,7 @@ services:
   redis:
     image: redis:latest
     restart: unless-stopped
+    container_name: redis
     mem_limit: 512M
     networks:
       - data

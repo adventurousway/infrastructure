@@ -1,0 +1,15 @@
+{{ ansible_managed | comment(decoration="# ") }}
+---
+waitTime: 5
+defaultTimeout: 600
+environments:
+  - name: production
+    baseUrl: https://www.{{ domain }}/
+    entry:
+      default: https://www.{{ domain }}/blog
+      post: https://www.{{ domain }}/blog/:slug
+  - name: staging
+    baseUrl: https://staging.{{ domain }}/
+    entry:
+      default: https://staging.{{ domain }}/blog
+      post: https://staging.{{ domain }}/blog/:slug

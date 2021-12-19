@@ -13,3 +13,8 @@
   hosts: all
   tags: registry
   roles: [app_docker_registry]
+
+- name: Configure the website
+  hosts: all
+  tags: website
+  roles: [app_website]

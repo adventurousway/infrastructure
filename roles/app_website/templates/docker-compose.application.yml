@@ -1,0 +1,144 @@
+{{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  default:
+  data:
+    external: true
+  proxy:
+    external: true
+  services:
+    external: true
+
+services:
+  api:
+    image: "registry.{{ domain }}/adventurousway/api:{{ website_versions.api }}"
+    restart: unless-stopped
+    container_name: api
+    environment:
+      JWT_COOKIE_DOMAIN: "{{ domain }}"
+      JWT_COOKIE_SECURE: "true"
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: proxy
+      traefik.http.routers.api.rule: "Host(`api.{{ domain }}`)"
+      traefik.http.routers.api.entrypoints: "https"
+      traefik.http.routers.api.tls: "true"
+      traefik.http.routers.api.tls.certresolver: "adventurousway-cloudflare"
+      traefik.http.routers.api-graphql.rule: "(Host(`www.{{ domain }}`) || Host(`staging.{{ domain }}`)) && Path(`/graphql`)"
+      traefik.http.routers.api-graphql.entrypoints: "https"
+      traefik.http.routers.api-graphql.tls: "true"
+      traefik.http.routers.api-graphql.tls.certresolver: "adventurousway-cloudflare"
+      traefik.http.routers.api-web.rule: "(Host(`www.{{ domain }}`) || Host(`staging.{{ domain }}`)) && (Path(`/atom`) || Path(`/feed`) || Path(`/json`)  || PathPrefix(`/pinterest`) || Path(`/sitemap.xml`))"
+      traefik.http.routers.api-web.entrypoints: "https"
+      traefik.http.routers.api-web.tls: "true"
+      traefik.http.routers.api-web.tls.certresolver: "adventurousway-cloudflare"
+      traefik.http.routers.api-web.middlewares: "api-sitemap"
+      traefik.http.middlewares.api-sitemap.replacepathregex.regex: "^/sitemap\\.xml"
+      traefik.http.middlewares.api-sitemap.replacepathregex.replacement: "/sitemap"
+      traefik.http.services.api.loadbalancer.server.port: "80"
+    volumes:
+      - "{{ secrets_path }}/image_service_uri:/run/secrets/image_service_uri:ro"
+      - "{{ secrets_path }}/search_service_uri:/run/secrets/search_service_uri:ro"
+      - "{{ secrets_path }}/video_service_uri:/run/secrets/video_service_uri:ro"
+      - "{{ secrets_path }}/jwt_secret:/run/secrets/jwt_secret:ro"
+      - "{{ secrets_path }}/mongodb_uri:/run/secrets/mongodb_uri:ro"
+      - "{{ secrets_path }}/mysql_ghost_uri:/run/secrets/mysql_ghost_uri:ro"
+      - "{{ secrets_path }}/smtp_uri:/run/secrets/smtp_uri:ro"
+    networks:
+      - proxy
+      - services
+      - default
+
+  spider:
+    image: "registry.{{ domain }}/adventurousway/spider:{{ website_versions.spider }}"
+    restart: unless-stopped
+    container_name: spider
+    environment:
+      CACHE_REFRESH_SECRET_KEY: "{{ website_cache_refresh_secret_key }}"
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: proxy
+      traefik.http.routers.spider.rule: "Host(`www.{{ domain }}`) && PathPrefix(`{{ website_cache_refresh_webook_path }}`)"
+      traefik.http.routers.spider.entrypoints: "https"
+      traefik.http.routers.spider.tls: "true"
+      traefik.http.routers.spider.tls.certresolver: "adventurousway-cloudflare"
+      traefik.http.routers.spider.service: "spider"
+      traefik.http.services.spider.loadbalancer.server.port: "80"
+    volumes:
+      - "{{ data_path }}/config/spider.yml:/usr/src/config.yaml:ro"
+    networks:
+      - proxy
+
+  web:
+    image: "registry.{{ domain }}/adventurousway/web:{{ website_versions.web }}"
+    restart: unless-stopped
+    container_name: web
+    environment:
+      ENVIRONMENT: production
+      CACHE_REFRESH_URL: https://www.{{ domain }}{{ website_cache_refresh_webook_path }}
+      CACHE_REFRESH_SECRET_KEY: "{{ website_cache_refresh_secret_key }}"
+      CSP_MODE: "off"
+      REDIS_URL: redis://redis
+      BASE_URL: https://www.{{ domain }}
+      GRAPHQL_API_URL: https://www.{{ domain }}/graphql
+      GRAPHQL_API_URL_SSR: http://api/graphql
+      IMAGE_BASE_URL: https://www.{{ domain }}/images/
+      GOOGLE_MAPS_EMBEDDED_API_KEY: "{{ google_maps_embedded_api_key }}"
+      GOOGLE_MAPS_IFRAME_API_KEY: "{{ google_maps_iframe_api_key }}"
+      ADS_ENABLED: "false"
+      ANALYTICS_ENABLED: "true"
+      SERVICE_WORKER_ENABLED: "true"
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: proxy
+      traefik.http.routers.web.rule: "Host(`www.{{ domain }}`)"
+      traefik.http.routers.web.entrypoints: "https"
+      traefik.http.routers.web.tls: "true"
+      traefik.http.routers.web.tls.certresolver: "adventurousway-cloudflare"
+      traefik.http.routers.root.rule: "Host(`{{ domain }}`)"
+      traefik.http.routers.root.entrypoints: "https"
+      traefik.http.routers.root.middlewares: "root-to-www"
+      traefik.http.routers.root.tls: "true"
+      traefik.http.routers.root.tls.certresolver: "adventurousway-cloudflare"
+      traefik.http.middlewares.root-to-www.redirectregex.regex: "^http://{{ domain }}/(.*)"
+      traefik.http.middlewares.root-to-www.redirectregex.replacement: "https://www.{{ domain }}/$${1}"
+      traefik.http.middlewares.root-to-www.redirectregex.permanent: "true"
+      traefik.http.services.web.loadbalancer.server.port: "80"
+    networks:
+      - proxy
+      - data
+      - default
+
+  staging:
+    image: "registry.{{ domain }}/adventurousway/web:{{ website_versions.staging }}"
+    restart: unless-stopped
+    container_name: staging
+    environment:
+      ENVIRONMENT: staging
+      CACHE_REFRESH_URL: https://www.{{ domain }}{{ website_cache_refresh_webook_path }}
+      CACHE_REFRESH_SECRET_KEY: "{{ website_cache_refresh_secret_key }}"
+      CSP_MODE: "off"
+      REDIS_URL: redis://redis
+      BASE_URL: https://staging.{{ domain }}
+      GRAPHQL_API_URL: https://staging.{{ domain }}/graphql
+      GRAPHQL_API_URL_SSR: http://api/graphql
+      IMAGE_BASE_URL: https://staging.{{ domain }}/images/
+      GOOGLE_MAPS_EMBEDDED_API_KEY: "{{ google_maps_embedded_api_key }}"
+      GOOGLE_MAPS_IFRAME_API_KEY: "{{ google_maps_iframe_api_key }}"
+      ADS_ENABLED: "false"
+      ANALYTICS_ENABLED: "false"
+      SERVICE_WORKER_ENABLED: "true"
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: proxy
+      traefik.http.routers.staging.rule: "Host(`staging.{{ domain }}`)"
+      traefik.http.routers.staging.entrypoints: "https"
+      traefik.http.routers.staging.tls: "true"
+      traefik.http.routers.staging.tls.certresolver: "adventurousway-cloudflare"
+      traefik.http.services.staging.loadbalancer.server.port: "80"
+    networks:
+      - proxy
+      - data
+      - default

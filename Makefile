@@ -26,3 +26,6 @@ proxy:
 
 registry:
 	@ansible-playbook playbooks/app.yml -t registry
+
+website:
+	@ansible-playbook playbooks/app.yml -t website

@@ -1,0 +1,3 @@
+---
+data_path: "{{ ansible_base_path }}/website"
+secrets_path: "{{ data_path }}/secrets"

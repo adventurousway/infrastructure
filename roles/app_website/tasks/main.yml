@@ -1,0 +1,59 @@
+---
+- name: Log into private Docker registry
+  community.general.docker_login:
+    registry_url: "registry.{{ domain }}"
+    username: "{{ registry_ansible_user }}"
+    password: "{{ registry_ansible_password }}"
+
+- name: Create storage directories
+  become: yes
+  file:
+    path: "{{ data_path }}/{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ remote_user }}"
+    group: "{{ remote_user }}"
+  with_items:
+    - config
+    - secrets
+
+- name: Copy configuration files
+  template:
+    src: "{{ item }}"
+    dest: "{{ data_path }}/config/{{ item }}"
+    mode: "0644"
+  with_items:
+    - spider.yml
+
+- name: Copy secrets
+  copy:
+    dest: "{{ data_path }}/secrets/{{ item.key }}"
+    content: "{{ item.value }}"
+    mode: "0400"
+  no_log: true
+  with_items: "{{ website_secrets | dict2items }}"
+
+- name: Copy Docker Compose definition files
+  template:
+    src: "docker-compose.{{ item }}.yml"
+    dest: "{{ data_path }}/docker-compose.{{ item }}.yml"
+    mode: "0644"
+  with_items:
+    - application
+    - services
+
+- name: Create Docker networks
+  community.docker.docker_network:
+    name: services
+
+- name: Start the stack with Docker Compose
+  community.docker.docker_compose:
+    project_src: "{{ data_path }}"
+    files:
+      - "docker-compose.{{ item }}.yml"
+    project_name: "{{ item }}"
+    pull: true
+    remove_orphans: true
+  with_items:
+    - services
+    - application

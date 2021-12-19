@@ -1,0 +1,78 @@
+{{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  data:
+    external: true
+  proxy:
+    external: true
+  services:
+    external: true
+
+services:
+  image:
+    image: "registry.{{ domain }}/adventurousway/image-service:{{ website_versions.image }}"
+    restart: unless-stopped
+    container_name: image
+    environment:
+      CACHE_S3_ACCESS_KEY_ID: "{{ website_cache_s3_access_key_id }}"
+      CACHE_S3_BUCKET: "{{ website_cache_s3_bucket }}"
+      CACHE_S3_ENDPOINT: "{{ website_cache_s3_endpoint }}"
+      GHOST_S3_ACCESS_KEY_ID: "{{ website_ghost_s3_access_key_id }}"
+      GHOST_S3_BUCKET: "{{ website_ghost_s3_bucket }}"
+      GHOST_S3_ENDPOINT: "{{ website_ghost_s3_endpoint }}"
+      STATIC_BASE_URL: "https://assets.{{ domain }}"
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: proxy
+      traefik.http.routers.image.rule: "(Host(`assets.{{ domain }}`) || Host(`staging.{{ domain }}`) || Host(`www.{{ domain }}`)) && PathPrefix(`/images/`)"
+      traefik.http.routers.image.entrypoints: "https"
+      traefik.http.routers.image.tls: "true"
+      traefik.http.routers.image.tls.certresolver: "adventurousway-cloudflare"
+      traefik.http.routers.image.middlewares: "blog-images,cors"
+      traefik.http.routers.image.service: "image"
+      traefik.http.services.image.loadbalancer.server.port: "80"
+      traefik.http.middlewares.blog-images.replacepathregex.regex: "^/images/i/(.*)"
+      traefik.http.middlewares.blog-images.replacepathregex.replacement: "/images/blog/$$1"
+      traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist: "*"
+    volumes:
+      - "{{ secrets_path }}/cache_s3_secret_access_key:/run/secrets/cache_s3_secret_access_key:ro"
+      - "{{ secrets_path }}/dynamic_image_title_secret:/run/secrets/dynamic_image_title_secret:ro"
+      - "{{ secrets_path }}/ghost_s3_secret_access_key:/run/secrets/ghost_s3_secret_access_key:ro"
+      - "{{ secrets_path }}/mysql_image_uri:/run/secrets/mysql_image_uri:ro"
+    networks:
+      - proxy
+      - services
+
+  search:
+    image: "registry.{{ domain }}/adventurousway/search-service:{{ website_versions.search }}"
+    restart: unless-stopped
+    container_name: search
+    environment:
+      ENABLE_INGESTORS: "true"
+      INGESTOR_SCHEDULE_POST: "* * * * *"
+      ENABLE_API: "true"
+    volumes:
+      - "{{ secrets_path }}/mongodb_search_uri:/run/secrets/mongodb_search_uri:ro"
+      - "{{ secrets_path }}/mysql_ghost_uri:/run/secrets/mysql_ghost_uri:ro"
+    networks:
+      - services
+      - data
+
+  video:
+    image: "registry.{{ domain }}/adventurousway/video-service:{{ website_versions.video }}"
+    restart: unless-stopped
+    container_name: video
+    environment:
+      ENABLE_INGESTOR: "true"
+      ENABLE_API: "true"
+      YOUTUBE_CHANNEL_ID: "{{ website_youtube_channel_id }}"
+    volumes:
+      - "{{ secrets_path }}/mysql_video_uri:/run/secrets/mysql_video_uri:ro"
+      - "{{ secrets_path }}/youtube_client_id:/run/secrets/youtube_client_id:ro"
+      - "{{ secrets_path }}/youtube_client_secret:/run/secrets/youtube_client_secret:ro"
+      - "{{ secrets_path }}/youtube_oauth_token:/run/secrets/youtube_oauth_token:ro"
+    networks:
+      - services
+      - data
