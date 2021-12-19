@@ -12,3 +12,6 @@ bootstrap:
 
 base:
 	@ansible-playbook playbooks/base.yml
+
+app:
+	@ansible-playbook playbooks/app.yml

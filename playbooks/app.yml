@@ -1,0 +1,5 @@
+---
+- name: Configure the data stores
+  hosts: all
+  tags: data
+  roles: [app_data]
