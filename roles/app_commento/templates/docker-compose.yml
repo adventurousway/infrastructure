@@ -1,0 +1,37 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+---
+version: "2.4"
+
+networks:
+  proxy:
+    external: true
+  data:
+    external: true
+
+services:
+  commento:
+    image: registry.gitlab.com/commento/commento:v1.8.0
+    restart: unless-stopped
+    container_name: commento
+    environment:
+      COMMENTO_ORIGIN: "https://comments.{{ domain}}"
+      COMMENTO_PORT: "80"
+      COMMENTO_SMTP_HOST: "{{ commento_smtp_host }}"
+      COMMENTO_SMTP_PORT: "{{ commento_smtp_port }}"
+      COMMENTO_SMTP_USERNAME: "{{ commento_smtp_username }}"
+      COMMENTO_SMTP_PASSWORD: "{{ commento_smtp_password }}"
+      COMMENTO_SMTP_FROM_ADDRESS: "{{ commento_smtp_from_address }}"
+      COMMENTO_FORBID_NEW_OWNERS: "false"
+      COMMENTO_POSTGRES: "{{ commento_postgres }}"
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: proxy
+      traefik.http.routers.commento.rule: "Host(`comments.{{ domain }}`)"
+      traefik.http.routers.commento.entrypoints: "https"
+      traefik.http.routers.commento.tls: "true"
+      traefik.http.routers.commento.tls.certresolver: "adventurousway-cloudflare"
+      traefik.http.routers.commento.service: "commento"
+      traefik.http.services.commento.loadbalancer.server.port: "80"
+    networks:
+      - proxy
+      - data

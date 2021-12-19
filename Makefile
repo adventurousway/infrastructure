@@ -29,3 +29,6 @@ registry:
 
 website:
 	@ansible-playbook playbooks/app.yml -t website
+
+commento:
+	@ansible-playbook playbooks/app.yml -t commento

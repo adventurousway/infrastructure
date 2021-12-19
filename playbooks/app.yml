@@ -18,3 +18,8 @@
   hosts: all
   tags: website
   roles: [app_website]
+
+- name: Configure Commento
+  hosts: all
+  tags: commento
+  roles: [app_commento]
