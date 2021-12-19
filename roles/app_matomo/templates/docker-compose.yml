@@ -31,3 +31,18 @@ services:
     networks:
       - proxy
       - data
+
+  matomo_cron:
+    image: matomo:latest
+    restart: "no"
+    container_name: matomo_cron
+    command:
+      - "php"
+      - "/var/www/html/console"
+      - "core:archive"
+      - "--url=https://analytics.{{ domain }}/"
+    volumes:
+      - "{{ data_path }}/config/matomo.config.php:/var/www/html/config/config.ini.php"
+      - "{{ data_path }}/config/php.ini:/usr/local/etc/php/conf.d/php-matomo-custom.ini:ro"
+    networks:
+      - data

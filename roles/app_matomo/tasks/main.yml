@@ -28,3 +28,9 @@
     project_src: "{{ data_path }}"
     pull: true
     remove_orphans: true
+
+- name: Install the Matomo cron
+  cron:
+    name: "matomo cron"
+    minute: "*/5"
+    job: "docker start matomo_cron"
