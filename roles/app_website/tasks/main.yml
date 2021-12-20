@@ -57,3 +57,9 @@
   with_items:
     - services
     - application
+
+- name: Install the image service cron
+  cron:
+    name: "image service precache"
+    minute: "*/15"
+    job: "docker start image_cron"
