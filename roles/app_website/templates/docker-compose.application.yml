@@ -49,6 +49,7 @@ services:
     networks:
       - proxy
       - services
+      - data
       - default
 
   spider:
