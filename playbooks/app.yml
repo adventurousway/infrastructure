@@ -1,40 +1,40 @@
 ---
 - name: Configure the data stores
-  hosts: all
+  hosts: web
   tags: data
   roles: [app_data]
 
 - name: Configure the reverse proxy
-  hosts: all
+  hosts: web
   tags: proxy
   roles: [app_proxy]
 
 - name: Configure the SMTP relay
-  hosts: all
+  hosts: web
   tags: smtp
   roles: [app_smtp]
 
 - name: Configure the Docker registry
-  hosts: all
+  hosts: web
   tags: registry
   roles: [app_docker_registry]
 
 - name: Configure the website
-  hosts: all
+  hosts: web
   tags: website
   roles: [app_website]
 
 - name: Configure Commento
-  hosts: all
+  hosts: web
   tags: commento
   roles: [app_commento]
 
 - name: Configure Ghost
-  hosts: all
+  hosts: web
   tags: ghost
   roles: [app_ghost]
 
 - name: Configure Matomo
-  hosts: all
+  hosts: web
   tags: matomo
   roles: [app_matomo]
