@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-UNENCRYPTED_FILES=$( grep -L ANSIBLE_VAULT **/*.secret.(yaml|yml) )
+UNENCRYPTED_FILES=$( grep -L \$ANSIBLE_VAULT\; **/*.secret.(yaml|yml) )
 
 if [[ $UNENCRYPTED_FILES == "" ]]; then
   echo "Vaults encrypted"
