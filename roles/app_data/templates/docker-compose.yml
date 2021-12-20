@@ -12,7 +12,7 @@ services:
     restart: unless-stopped
     container_name: mongo
     volumes:
-      - "{{ data_path }}/mongo:/data"
+      - "{{ data_path }}/mongo:/data/db"
     networks:
       - data
 
