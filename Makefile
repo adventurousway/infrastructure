@@ -2,7 +2,13 @@ default:
 	@true
 
 install:
-	@ansible-galaxy install -r galaxy-requirements.yml
+	@echo "Registering pre-commit hook to prevent accidentally committing unencrypted vaults"
+	@if [ -d .git/ ]; then rm .git/hooks/pre-commit; fi
+	ln -sf ${PWD}/scripts/vault_encrypt_secrets.sh .git/hooks/pre-commit
+
+	@echo ""
+	@echo "Installing Ansible Galaxy requirements"
+	ansible-galaxy install -r galaxy-requirements.yml
 
 lint:
 	@ansible-lint --offline --exclude galaxy -v
