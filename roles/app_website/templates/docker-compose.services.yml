@@ -44,6 +44,7 @@ services:
     networks:
       - proxy
       - services
+      - data
 
   image_cron:
     image: "registry.{{ domain }}/adventurousway/image-service:{{ website_versions.image }}"
@@ -68,6 +69,7 @@ services:
       - "{{ secrets_path }}/mysql_image_uri:/run/secrets/mysql_image_uri:ro"
     networks:
       - services
+      - data
 
   search:
     image: "registry.{{ domain }}/adventurousway/search-service:{{ website_versions.search }}"
