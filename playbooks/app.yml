@@ -9,6 +9,11 @@
   tags: proxy
   roles: [app_proxy]
 
+- name: Configure the SMTP relay
+  hosts: all
+  tags: smtp
+  roles: [app_smtp]
+
 - name: Configure the Docker registry
   hosts: all
   tags: registry

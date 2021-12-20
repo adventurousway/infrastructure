@@ -10,6 +10,8 @@ networks:
     external: true
   services:
     external: true
+  smtp:
+    external: true
 
 services:
   api:
@@ -50,6 +52,7 @@ services:
       - proxy
       - services
       - data
+      - smtp
       - default
 
   spider:

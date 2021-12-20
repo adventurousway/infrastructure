@@ -24,6 +24,9 @@ data:
 proxy:
 	@ansible-playbook playbooks/app.yml -t proxy
 
+smtp:
+	@ansible-playbook playbooks/app.yml -t smtp
+
 registry:
 	@ansible-playbook playbooks/app.yml -t registry
 

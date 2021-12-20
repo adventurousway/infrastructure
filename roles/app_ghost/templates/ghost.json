@@ -19,10 +19,12 @@
   "mail": {
     "transport": "SMTP",
     "options": {
-      "host": "{{ ghost_smtp_host }}",
-      "auth": {
-        "user": "{{ ghost_smtp_user }}",
-        "pass": "{{ ghost_smtp_pass }}"
+      "host": "smtp",
+      "port": "25",
+      "secure": false,
+      "ignoreTLS": true,
+      "tls": {
+        "rejectUnauthorized": false
       }
     },
     "from": "{{ ghost_smtp_from_address }}"

@@ -7,6 +7,8 @@ networks:
     external: true
   data:
     external: true
+  smtp:
+    external: true
 
 services:
   commento:
@@ -16,10 +18,8 @@ services:
     environment:
       COMMENTO_ORIGIN: "https://comments.{{ domain}}"
       COMMENTO_PORT: "80"
-      COMMENTO_SMTP_HOST: "{{ commento_smtp_host }}"
-      COMMENTO_SMTP_PORT: "{{ commento_smtp_port }}"
-      COMMENTO_SMTP_USERNAME: "{{ commento_smtp_username }}"
-      COMMENTO_SMTP_PASSWORD: "{{ commento_smtp_password }}"
+      COMMENTO_SMTP_HOST: smtp
+      COMMENTO_SMTP_PORT: "25"
       COMMENTO_SMTP_FROM_ADDRESS: "{{ commento_smtp_from_address }}"
       COMMENTO_FORBID_NEW_OWNERS: "false"
       COMMENTO_POSTGRES: "{{ commento_postgres }}"
@@ -35,3 +35,4 @@ services:
     networks:
       - proxy
       - data
+      - smtp
