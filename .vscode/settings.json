@@ -1,6 +1,6 @@
 {
   "files.associations": {
-    "**/*.yml": "ansible",
+    "**/tasks/**/*.yml": "ansible",
     "**/templates/*.yml": "yaml",
     "**/docker-compose.yml": "dockercompose"
   }
