@@ -17,13 +17,9 @@ services:
       traefik.enable: "true"
       traefik.docker.network: proxy
       traefik.http.routers.matomo.rule: "Host(`analytics.{{ domain }}`)"
-      traefik.http.routers.matomo.entrypoints: "https"
-      traefik.http.routers.matomo.tls: "true"
-      traefik.http.routers.matomo.tls.certresolver: "adventurousway-cloudflare"
+      traefik.http.routers.matomo.entrypoints: "cloudflare-tunnel"
       traefik.http.routers.matomo-web.rule: "(Host(`www.{{ domain }}`) || Host(`staging.{{ domain }}`)) && PathPrefix(`/js`)"
-      traefik.http.routers.matomo-web.entrypoints: "https"
-      traefik.http.routers.matomo-web.tls: "true"
-      traefik.http.routers.matomo-web.tls.certresolver: "adventurousway-cloudflare"
+      traefik.http.routers.matomo-web.entrypoints: "cloudflare-tunnel"
       traefik.http.services.matomo.loadbalancer.server.port: "80"
     volumes:
       - "{{ data_path }}/config/matomo.config.php:/var/www/html/config/config.ini.php"

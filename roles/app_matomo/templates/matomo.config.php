@@ -14,6 +14,7 @@ proxy_client_headers[] = "HTTP_CF_CONNECTING_IP"
 proxy_client_headers[] = "HTTP_X_FORWARDED_FOR"
 salt = "{{ matomo_general_salt }}"
 trusted_hosts[] = "{{ matomo_general_trusted_hosts }}"
+force_ssl = 1
 
 [PluginsInstalled]
 PluginsInstalled[] = "Diagnostics"

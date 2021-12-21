@@ -1,6 +1,6 @@
 ---
 - name: Create storage directory
-  become: yes
+  become: true
   file:
     path: "{{ data_path }}/config"
     state: directory
@@ -9,10 +9,13 @@
     group: "{{ remote_user }}"
 
 - name: Copy configuration files
+  become: true
   template:
     src: "{{ item }}"
     dest: "{{ data_path }}/config/{{ item }}"
     mode: "0644"
+    owner: www-data
+    group: www-data
   with_items:
     - matomo.config.php
     - php.ini
