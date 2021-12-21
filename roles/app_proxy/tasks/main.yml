@@ -9,6 +9,16 @@
     group: "{{ remote_user }}"
   with_items:
     - traefik
+    - cloudflare-tunnel
+
+- name: Copy Cloudflare tunnel configuration files
+  template:
+    src: "cloudflare-tunnel/{{ item }}"
+    dest: "{{ data_path }}/cloudflare-tunnel/{{ item }}"
+    mode: "0644"
+  with_items:
+    - credentials.json
+    - config.yaml
 
 - name: Copy Docker Compose definition file
   template:

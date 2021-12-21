@@ -3,6 +3,7 @@
 version: "2.4"
 
 networks:
+  default:
   proxy:
     external: true
 
@@ -15,6 +16,8 @@ services:
       - "--accesslog=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedByDefault=false"
+      - "--entrypoints.cloudflare-tunnel.address=:8000"
+      - "--entryPoints.cloudflare-tunnel.forwardedHeaders.insecure=true"
       - "--entrypoints.http.address=:80"
       - "--entryPoints.http.forwardedHeaders.insecure=true"
       - "--entrypoints.http.http.redirections.entrypoint.to=https"
@@ -39,4 +42,17 @@ services:
       - "443:443/tcp"
     dns: 1.1.1.1
     networks:
+      - default
       - proxy
+
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:2021.12.1
+    restart: unless-stopped
+    container_name: cloudflare-tunnel
+    command:
+      - tunnel
+      - run
+    volumes:
+      - "{{ data_path }}/cloudflare-tunnel:/etc/cloudflared:ro"
+    networks:
+      - default

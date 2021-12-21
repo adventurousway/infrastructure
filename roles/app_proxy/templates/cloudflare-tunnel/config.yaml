@@ -1,0 +1,4 @@
+# {{ ansible_managed | comment(decoration="# ") }}
+url: http://traefik:8000/
+tunnel: "{{ cloudflare_tunnel_id }}"
+credentials-file: /etc/cloudflared/credentials.json
