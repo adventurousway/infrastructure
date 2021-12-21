@@ -33,14 +33,11 @@
   no_log: true
   with_items: "{{ website_secrets | dict2items }}"
 
-- name: Copy Docker Compose definition files
+- name: Copy Docker Compose definition file
   template:
-    src: "docker-compose.{{ item }}.yml"
-    dest: "{{ data_path }}/docker-compose.{{ item }}.yml"
+    src: "docker-compose.yml"
+    dest: "{{ data_path }}/docker-compose.yml"
     mode: "0644"
-  with_items:
-    - application
-    - services
 
 - name: Create Docker networks
   community.docker.docker_network:
@@ -49,14 +46,8 @@
 - name: Start the stack with Docker Compose
   community.docker.docker_compose:
     project_src: "{{ data_path }}"
-    files:
-      - "docker-compose.{{ item }}.yml"
-    project_name: "{{ item }}"
     pull: true
-    remove_orphans: true
-  with_items:
-    - services
-    - application
+    remove_orphans: yes
 
 - name: Install the image service cron
   cron:
