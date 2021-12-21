@@ -27,10 +27,7 @@ services:
       traefik.enable: "true"
       traefik.docker.network: proxy
       traefik.http.routers.commento.rule: "Host(`comments.{{ domain }}`)"
-      traefik.http.routers.commento.entrypoints: "https"
-      traefik.http.routers.commento.tls: "true"
-      traefik.http.routers.commento.tls.certresolver: "adventurousway-cloudflare"
-      traefik.http.routers.commento.service: "commento"
+      traefik.http.routers.commento.entrypoints: "cloudflare-tunnel"
       traefik.http.services.commento.loadbalancer.server.port: "80"
     networks:
       - proxy
