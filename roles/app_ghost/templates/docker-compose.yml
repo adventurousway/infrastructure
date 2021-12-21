@@ -27,10 +27,7 @@ services:
       traefik.enable: "true"
       traefik.docker.network: proxy
       traefik.http.routers.ghost.rule: "Host(`www.{{ domain }}`) && PathPrefix(`/blog/ghost`)"
-      traefik.http.routers.ghost.entrypoints: "https"
-      traefik.http.routers.ghost.service: "ghost"
-      traefik.http.routers.ghost.tls: "true"
-      traefik.http.routers.ghost.tls.certresolver: "adventurousway-cloudflare"
+      traefik.http.routers.ghost.entrypoints: "cloudflare-tunnel"
       traefik.http.services.ghost.loadbalancer.server.port: "2368"
     volumes:
       - "{{ data_path }}/config/ghost.json:/var/lib/ghost/config.production.json:ro"
