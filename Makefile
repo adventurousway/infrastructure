@@ -3,7 +3,7 @@ default:
 
 install:
 	@echo "Registering pre-commit hook to prevent accidentally committing unencrypted vaults"
-	@if [ -d .git/ ]; then rm .git/hooks/pre-commit; fi
+	@if [ -d .git/ ]; then rm -f .git/hooks/pre-commit; fi
 	ln -sf ${PWD}/scripts/vault_encrypt_secrets.sh .git/hooks/pre-commit
 
 	@echo ""
@@ -22,6 +22,9 @@ base:
 # run the whole app playbook
 app:
 	@ansible-playbook playbooks/app.yml
+
+vpn:
+	@ansible-playbook playbooks/vpn.yml
 
 # run individual playbooks
 data:

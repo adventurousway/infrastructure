@@ -1,0 +1,5 @@
+---
+- name: Configure Wireguard VPN
+  hosts: all
+  tags: vpn
+  roles: [vpn]

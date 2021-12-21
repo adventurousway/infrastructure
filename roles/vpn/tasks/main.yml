@@ -1,0 +1,32 @@
+---
+- name: Install Wireguard
+  become: true
+  block:
+    - name: Install Wireguard package
+      apt:
+        name: wireguard
+        state: present
+        default_release: "{{ ansible_distribution_release }}-backports"
+        update_cache: yes
+      notify: "restart wireguard"
+
+    - name: Copy Wireguard config
+      template:
+        src: wg0.conf
+        dest: /etc/wireguard/wg0.conf
+        owner: root
+        group: root
+        mode: "0600"
+
+    - name: Start Wireguard on boot
+      systemd:
+        name: wg-quick@wg0
+        enabled: true
+        state: reloaded
+
+    - name: Allow Wireguard through firewall
+      ufw:
+        rule: allow
+        proto: udp
+        port: "51820"
+      when: wireguard_listen_port is defined
