@@ -17,6 +17,7 @@
         owner: root
         group: root
         mode: "0600"
+      notify: "restart wireguard"
 
     - name: Start Wireguard on boot
       systemd:

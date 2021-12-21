@@ -17,7 +17,8 @@ services:
       traefik.enable: "true"
       traefik.docker.network: proxy
       traefik.http.routers.matomo.rule: "Host(`analytics.{{ domain }}`)"
-      traefik.http.routers.matomo.entrypoints: "cloudflare-tunnel"
+      traefik.http.routers.matomo.entrypoints: "https"
+      traefik.http.routers.matomo.middlewares: "vpn-ipwhitelist"
       traefik.http.routers.matomo-web.rule: "(Host(`www.{{ domain }}`) || Host(`staging.{{ domain }}`)) && PathPrefix(`/js`)"
       traefik.http.routers.matomo-web.entrypoints: "cloudflare-tunnel"
       traefik.http.services.matomo.loadbalancer.server.port: "80"

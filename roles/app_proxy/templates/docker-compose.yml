@@ -14,15 +14,17 @@ services:
     container_name: traefik
     command:
       - "--accesslog=true"
+      - "--api.dashboard=true"
       - "--providers.docker=true"
+      - "--providers.docker.network=proxy"
       - "--providers.docker.exposedByDefault=false"
       - "--entrypoints.cloudflare-tunnel.address=:8000"
       - "--entryPoints.cloudflare-tunnel.forwardedHeaders.insecure=true"
-      - "--entrypoints.http.address=:80"
+      - "--entrypoints.http.address=:80/tcp"
       - "--entryPoints.http.forwardedHeaders.insecure=true"
-      - "--entrypoints.http.http.redirections.entrypoint.to=https"
-      - "--entrypoints.http.http.redirections.entrypoint.scheme=https"
-      - "--entrypoints.https.address=:443"
+      - "--entrypoints.https.address=:443/tcp"
+      - "--entrypoints.https.http.tls=true"
+      - "--entrypoints.https.http.tls.certresolver=adventurousway-cloudflare"
       - "--certificatesresolvers.adventurousway-cloudflare.acme.dnschallenge=true"
       - "--certificatesresolvers.adventurousway-cloudflare.acme.dnschallenge.provider=cloudflare"
       # - "--certificatesresolvers.adventurousway-cloudflare.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
@@ -30,7 +32,23 @@ services:
       - "--certificatesresolvers.adventurousway-cloudflare.acme.email={{ letsencrypt_email_address }}"
       - "--certificatesresolvers.adventurousway-cloudflare.acme.storage=/letsencrypt/acme.json"
     labels:
-      traefik.docker.network: proxy
+      traefik.enable: "true"
+      traefik.http.routers.http-catchall.rule: ClientIP(`{{ wireguard_vpn_network }}`)
+      traefik.http.routers.http-catchall.entrypoints: http
+      traefik.http.routers.http-catchall.middlewares: redirect-to-https
+      traefik.http.routers.dashboard.rule: "Host(`traefik.{{ domain }}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`) || Path(`/`))"
+      traefik.http.routers.dashboard.service: "api@internal"
+      traefik.http.routers.dashboard.middlewares: "dashboard-root-redirect,append-trailing-slash"
+      traefik.http.routers.dashboard.entrypoints: "https"
+      traefik.http.middlewares.append-trailing-slash.redirectregex.regex: ^(https?://[^/]+/dashboard)$$
+      traefik.http.middlewares.append-trailing-slash.redirectregex.replacement: $${1}/
+      traefik.http.middlewares.append-trailing-slash.redirectregex.permanent: true
+      traefik.http.middlewares.dashboard-root-redirect.redirectregex.regex: ^(https?://[^/]+/)$$
+      traefik.http.middlewares.dashboard-root-redirect.redirectregex.replacement: $${1}dashboard/
+      traefik.http.middlewares.dashboard-root-redirect.redirectregex.permanent: true
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
+      traefik.http.middlewares.redirect-to-https.redirectscheme.permanent: true
+      traefik.http.middlewares.vpn-ipwhitelist.ipwhitelist.sourcerange: "{{ wireguard_vpn_network }}"
     environment:
       CF_API_EMAIL: "{{ cloudflare_email_address }}"
       CF_API_KEY: "{{ cloudflare_api_key }}"
