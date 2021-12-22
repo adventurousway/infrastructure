@@ -1,23 +1,33 @@
 ---
-- name: Create storage directories
+- name: Create config directory
+  become: yes
+  file:
+    path: "{{ data_path }}/config"
+    state: directory
+    mode: "0755"
+    owner: "{{ remote_user }}"
+    group: "{{ remote_user }}"
+
+- name: Create data storage directories
   become: yes
   file:
     path: "{{ data_path }}/{{ item }}"
     state: directory
     mode: "0755"
-    owner: "{{ remote_user }}"
-    group: "{{ remote_user }}"
+    owner: "999"
+    group: "999"
   with_items:
     - mongo
     - mysql
     - postgres
-    - config
 
 - name: Copy MySQL configuration file
   template:
     src: mysql.conf
     dest: "{{ data_path }}/config/mysql.conf"
     mode: "0644"
+    owner: "999"
+    group: "999"
 
 - name: Copy Docker Compose definition file
   template:
