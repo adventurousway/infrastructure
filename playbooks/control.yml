@@ -1,0 +1,10 @@
+---
+- name: Configure the reverse proxy
+  hosts: control
+  tags: proxy
+  roles: [control_proxy]
+
+- name: Configure Drone CI
+  hosts: control
+  tags: drone
+  roles: [drone]

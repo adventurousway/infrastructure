@@ -23,6 +23,9 @@ base:
 app:
 	@ansible-playbook playbooks/app.yml
 
+control:
+	@ansible-playbook playbooks/control.yml
+
 vpn:
 	@ansible-playbook playbooks/vpn.yml
 
