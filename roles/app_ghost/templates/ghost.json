@@ -35,7 +35,7 @@
   "storage": {
     "active": "s3",
     "s3": {
-      "assetHost": "{{ ghost_storage_adapter_s3_asset_host }} "
+      "assetHost": "{{ ghost_storage_adapter_s3_asset_host }}"
     }
   },
   "process": "systemd",
