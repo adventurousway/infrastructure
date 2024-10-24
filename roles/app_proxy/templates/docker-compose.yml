@@ -64,7 +64,7 @@ services:
       - proxy
 
   cloudflare-tunnel:
-    image: cloudflare/cloudflared:2021.12.1
+    image: cloudflare/cloudflared:2024.10.1
     restart: unless-stopped
     container_name: cloudflare-tunnel
     command:
