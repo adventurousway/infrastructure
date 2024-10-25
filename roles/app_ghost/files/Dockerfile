@@ -1,4 +1,4 @@
-FROM ghost:3.13.1
+FROM ghost:5.97.3
 
 RUN cd current \
     && npm install ghost-storage-adapter-s3 \
