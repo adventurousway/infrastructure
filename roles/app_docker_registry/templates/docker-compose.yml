@@ -10,7 +10,7 @@ networks:
 
 services:
   registry:
-    image: registry:2
+    image: registry:3
     restart: unless-stopped
     container_name: registry
     labels:
